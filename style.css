@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400&family=Inter:wght@200;300;400;600&display=swap');
 
 :root {
     --primary-love: #ff003c;
@@ -7,7 +7,7 @@
     --gold-shimmer: #ffd700;
     --obsidian: #050505;
     --glass-bg: rgba(255, 0, 60, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.1);
     --text-color: #ffffff;
 }
 
@@ -25,7 +25,7 @@ body {
     overflow: hidden;
     height: 100vh;
     width: 100vw;
-    transition: background-color 4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
 }
 
 .vignette {
@@ -37,7 +37,6 @@ body {
     background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.95) 100%);
     pointer-events: none;
     z-index: 5;
-    transition: opacity 3s ease;
 }
 
 .background-container {
@@ -51,8 +50,13 @@ body {
 }
 
 #loveCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: block;
-    filter: blur(1px);
+    filter: blur(0.5px);
 }
 
 .content {
@@ -64,16 +68,16 @@ body {
     height: 100vh;
     padding: 4rem;
     text-align: center;
-    transition: opacity 1s ease;
+    pointer-events: none; /* Let clicks pass to canvas if needed, but button handles its own */
 }
 
 .logo {
-    font-size: 1rem;
-    font-weight: 300;
-    letter-spacing: 12px;
+    font-size: 0.8rem;
+    font-weight: 200;
+    letter-spacing: 15px;
     color: var(--primary-love);
-    text-shadow: 0 0 20px rgba(255, 0, 60, 0.6);
-    opacity: 0.8;
+    text-shadow: 0 0 15px rgba(255, 0, 60, 0.8);
+    text-transform: uppercase;
 }
 
 .hero {
@@ -82,99 +86,119 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transition: all 1s ease;
+    pointer-events: auto; /* Re-enable for button */
 }
 
 .hyper-title {
     font-family: 'Playfair Display', serif;
-    font-size: 15vw; /* Even bigger */
-    font-weight: 600;
+    font-size: 15vw;
+    font-weight: 800;
     font-style: italic;
-    letter-spacing: -2px;
+    letter-spacing: -5px;
     line-height: 0.8;
-    background: linear-gradient(to bottom, #fff 20%, var(--primary-love) 80%);
+    background: linear-gradient(to bottom, #fff 30%, var(--primary-love) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.8)); /* Stronger shadow for visibility */
+    filter: drop-shadow(0 0 40px rgba(0, 0, 0, 0.9));
     margin-bottom: 2rem;
-    animation: pulseScale 8s ease-in-out infinite;
+    animation: pulseScale 10s ease-in-out infinite;
 }
 
 .romantic-quote {
     font-size: 1.5rem;
     font-weight: 300;
     font-style: italic;
-    color: #ffd7d7;
+    color: #fff;
     max-width: 800px;
-    opacity: 0.9; /* More visible */
+    opacity: 0.9;
     letter-spacing: 1px;
-    transition: all 1s ease;
-    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    text-shadow: 0 0 20px rgba(0, 0, 0, 1), 0 0 10px rgba(255, 0, 60, 0.3);
+    transition: all 1.5s ease;
 }
 
 .cta-pulse {
-    margin-top: 4rem;
+    margin-top: 5rem;
 }
 
 button {
     background: transparent;
     border: 1px solid var(--glass-border);
-    padding: 1.5rem 4rem;
+    padding: 1.5rem 5rem;
     color: white;
-    font-size: 0.8rem;
-    letter-spacing: 4px;
+    font-size: 0.9rem;
+    letter-spacing: 6px;
     text-transform: uppercase;
-    border-radius: 2px;
+    border-radius: 4px;
     cursor: pointer;
-    backdrop-filter: blur(20px);
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(30px);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
+    pointer-events: auto;
 }
 
 button:hover {
     border-color: var(--primary-love);
-    background: rgba(255, 0, 60, 0.1);
-    transform: scale(1.1);
-    letter-spacing: 6px;
-    box-shadow: 0 0 100px rgba(255, 0, 60, 0.2);
-}
-
-.floating-aura {
-    position: fixed;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(255, 0, 60, 0.1) 0%, transparent 70%);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: 2;
-    animation: floatAura 20s infinite alternate linear;
+    background: rgba(255, 0, 60, 0.15);
+    transform: scale(1.05);
+    box-shadow: 0 0 80px rgba(255, 0, 60, 0.3);
 }
 
 footer {
-    opacity: 0.2;
-    font-size: 0.6rem;
-    letter-spacing: 2px;
+    opacity: 0.4;
+    font-size: 0.7rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
 }
 
 @keyframes pulseScale {
-    0%, 100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 50px rgba(255, 0, 60, 0.3)); }
-    50% { transform: scale(1.05); filter: brightness(1.2) drop-shadow(0 0 80px rgba(255, 0, 60, 0.5)); }
+    0%, 100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 40px rgba(0, 0, 0, 0.9)); }
+    50% { transform: scale(1.02); filter: brightness(1.1) drop-shadow(0 0 60px rgba(255, 0, 60, 0.4)); }
 }
 
-@keyframes floatAura {
-    from { transform: translate(-70%, -30%); }
-    to { transform: translate(-30%, -70%); }
+.final-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    z-index: 100;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 3s ease;
+}
+
+.final-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 6vw;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 0 60px rgba(255, 0, 60, 1);
+}
+
+.restart-btn {
+    display: inline-block;
+    margin-top: 3rem;
+    font-size: 1rem;
+    letter-spacing: 10px;
+    color: var(--primary-love);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.5s;
+    pointer-events: auto;
+}
+
+.restart-btn:hover {
+    opacity: 1;
 }
 
 .content > * {
-    animation: fadeInLarge 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeInLarge 3.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeInLarge {
-    from { opacity: 0; transform: translateY(100px) scale(0.9); filter: blur(20px); }
+    from { opacity: 0; transform: translateY(50px) scale(0.95); filter: blur(10px); }
     to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
