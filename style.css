@@ -96,7 +96,7 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 50px rgba(255, 0, 60, 0.3));
+    filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.8)); /* Stronger shadow for visibility */
     margin-bottom: 2rem;
     animation: pulseScale 8s ease-in-out infinite;
 }
@@ -107,9 +107,10 @@ body {
     font-style: italic;
     color: #ffd7d7;
     max-width: 800px;
-    opacity: 0.6;
+    opacity: 0.9; /* More visible */
     letter-spacing: 1px;
     transition: all 1s ease;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
 .cta-pulse {
