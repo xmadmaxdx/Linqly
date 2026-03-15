@@ -1,180 +1,188 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+const canvas = document.getElementById('loveCanvas');
+const ctx = canvas.getContext('2d');
+const quoteElement = document.getElementById('quoteStream');
+const exploreBtn = document.getElementById('exploreBtn');
 
-:root {
-    --primary-love: #ff003c;
-    --deep-crimson: #4a0000;
-    --velvet-rose: #2d0010;
-    --gold-shimmer: #ffd700;
-    --obsidian: #050505;
-    --glass-bg: rgba(255, 0, 60, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --text-color: #ffffff;
+let width, height, particles = [];
+let touchCount = 0;
+let isFinished = false;
+let mouse = { x: -1000, y: -1000, radius: 200 };
+
+const quotes = [
+    "Sneha, you are my favorite miracle.",
+    "Every heartbeat whispers your name, Sneha.",
+    "In your eyes, I found my forever home.",
+    "Sneha, you make the world feel like magic.",
+    "My heart belongs to you, Sneha."
+];
+let quoteIndex = 0;
+
+function init() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    particles = [];
+    for (let i = 0; i < 250; i++) {
+        particles.push(new Particle());
+    }
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-    user-select: none;
+class Particle {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 1.5;
+        this.speedY = (Math.random() - 0.5) * 1.5;
+        this.color = this.getRandomColor();
+        this.mode = 'float'; // float, rush, heart
+        this.targetX = 0;
+        this.targetY = 0;
+        this.friction = 0.95;
+    }
+
+    getRandomColor() {
+        const colors = ['#ff003c', '#ff2d55', '#ffd700', '#ffffff'];
+        return colors[Math.floor(Math.random() * colors.length)] + 'aa';
+    }
+
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        if (Math.random() > 0.95 || this.mode === 'heart') {
+            // Draw heart
+            const s = this.size * 2;
+            ctx.moveTo(this.x, this.y);
+            ctx.bezierCurveTo(this.x, this.y - s/2, this.x - s, this.y - s/2, this.x - s, this.y);
+            ctx.bezierCurveTo(this.x - s, this.y + s/2, this.x, this.y + s, this.x, this.y + s * 1.5);
+            ctx.bezierCurveTo(this.x, this.y + s, this.x + s, this.y + s/2, this.x + s, this.y);
+            ctx.bezierCurveTo(this.x + s, this.y - s/2, this.x, this.y - s/2, this.x, this.y);
+        } else {
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        }
+        ctx.fill();
+    }
+
+    update() {
+        if (this.mode === 'float') {
+            this.x += this.speedX;
+            this.y += this.speedY;
+
+            if (this.x < 0 || this.x > width) this.speedX *= -1;
+            if (this.y < 0 || this.y > height) this.speedY *= -1;
+
+            // Mouse interaction
+            const dx = mouse.x - this.x;
+            const dy = mouse.y - this.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < mouse.radius) {
+                const angle = Math.atan2(dy, dx);
+                this.x -= Math.cos(angle) * 5;
+                this.y -= Math.sin(angle) * 5;
+            }
+        } else if (this.mode === 'heart') {
+            const dx = this.targetX - this.x;
+            const dy = this.targetY - this.y;
+            this.x += dx * 0.05;
+            this.y += dy * 0.05;
+        }
+    }
 }
 
-body {
-    background-color: var(--obsidian);
-    color: var(--text-color);
-    overflow: hidden;
-    height: 100vh;
-    width: 100vw;
-    transition: background-color 4s cubic-bezier(0.16, 1, 0.3, 1);
+function getHeartPoint(t) {
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+    return { x: x * 20, y: y * 20 };
 }
 
-.vignette {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.95) 100%);
-    pointer-events: none;
-    z-index: 5;
-    transition: opacity 3s ease;
+function animate() {
+    ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
+    ctx.fillRect(0, 0, width, height);
+
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+
+    requestAnimationFrame(animate);
 }
 
-.background-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    background: linear-gradient(135deg, #050505 0%, #1a0000 100%);
+exploreBtn.addEventListener('click', () => {
+    if (isFinished) return;
+    touchCount++;
+
+    // Speed up effect
+    particles.forEach(p => {
+        p.speedX *= 1.5;
+        p.speedY *= 1.5;
+    });
+
+    if (touchCount >= 10) {
+        isFinished = true;
+        triggerClimax();
+    } else {
+        exploreBtn.innerText = `Touch Heart (${10 - touchCount})`;
+        exploreBtn.style.transform = `scale(${1 + touchCount * 0.1})`;
+    }
+});
+
+function triggerClimax() {
+    document.querySelector('.content').style.opacity = '0';
+    
+    // Add "millions" (well, thousands) of hearts
+    for (let i = 0; i < 2000; i++) {
+        const p = new Particle();
+        p.mode = 'heart';
+        p.color = '#ff003c';
+        const t = Math.random() * Math.PI * 2;
+        const point = getHeartPoint(t);
+        p.targetX = width / 2 + point.x;
+        p.targetY = height / 2 + point.y;
+        p.speedX = (Math.random() - 0.5) * 10;
+        p.speedY = (Math.random() - 0.5) * 10;
+        particles.push(p);
+    }
+
+    // Set all existing particles to heart mode
+    particles.forEach((p, i) => {
+        p.mode = 'heart';
+        const t = (i / particles.length) * Math.PI * 2;
+        const point = getHeartPoint(t);
+        p.targetX = width / 2 + point.x;
+        p.targetY = height / 2 + point.y;
+    });
+
+    setTimeout(() => {
+        const finalDiv = document.createElement('div');
+        finalDiv.className = 'final-message';
+        finalDiv.innerHTML = `
+            <div class="final-text">Sneha, I will always love you.</div>
+            <div class="restart-btn" onclick="location.reload()">LOVE AGAIN</div>
+        `;
+        document.body.appendChild(finalDiv);
+        setTimeout(() => finalDiv.style.opacity = '1', 100);
+    }, 3000);
 }
 
-#loveCanvas {
-    display: block;
-    filter: blur(1px);
-}
+setInterval(() => {
+    if (isFinished) return;
+    quoteElement.style.opacity = '0';
+    setTimeout(() => {
+        quoteIndex = (quoteIndex + 1) % quotes.length;
+        quoteElement.innerText = quotes[quoteIndex];
+        quoteElement.style.opacity = '1';
+    }, 1000);
+}, 5000);
 
-.content {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100vh;
-    padding: 4rem;
-    text-align: center;
-    transition: opacity 1s ease;
-}
+window.addEventListener('mousemove', (e) => {
+    mouse.x = e.x;
+    mouse.y = e.y;
+});
 
-.logo {
-    font-size: 1rem;
-    font-weight: 300;
-    letter-spacing: 12px;
-    color: var(--primary-love);
-    text-shadow: 0 0 20px rgba(255, 0, 60, 0.6);
-    opacity: 0.8;
-}
+window.addEventListener('resize', init);
 
-.hero {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    transition: all 1s ease;
-}
-
-.hyper-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 15vw; /* Even bigger */
-    font-weight: 600;
-    font-style: italic;
-    letter-spacing: -2px;
-    line-height: 0.8;
-    background: linear-gradient(to bottom, #fff 20%, var(--primary-love) 80%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.8)); /* Stronger shadow for visibility */
-    margin-bottom: 2rem;
-    animation: pulseScale 8s ease-in-out infinite;
-}
-
-.romantic-quote {
-    font-size: 1.5rem;
-    font-weight: 300;
-    font-style: italic;
-    color: #ffd7d7;
-    max-width: 800px;
-    opacity: 0.9; /* More visible */
-    letter-spacing: 1px;
-    transition: all 1s ease;
-    text-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
-
-.cta-pulse {
-    margin-top: 4rem;
-}
-
-button {
-    background: transparent;
-    border: 1px solid var(--glass-border);
-    padding: 1.5rem 4rem;
-    color: white;
-    font-size: 0.8rem;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    border-radius: 2px;
-    cursor: pointer;
-    backdrop-filter: blur(20px);
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-button:hover {
-    border-color: var(--primary-love);
-    background: rgba(255, 0, 60, 0.1);
-    transform: scale(1.1);
-    letter-spacing: 6px;
-    box-shadow: 0 0 100px rgba(255, 0, 60, 0.2);
-}
-
-.floating-aura {
-    position: fixed;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(255, 0, 60, 0.1) 0%, transparent 70%);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: 2;
-    animation: floatAura 20s infinite alternate linear;
-}
-
-footer {
-    opacity: 0.2;
-    font-size: 0.6rem;
-    letter-spacing: 2px;
-}
-
-@keyframes pulseScale {
-    0%, 100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 50px rgba(255, 0, 60, 0.3)); }
-    50% { transform: scale(1.05); filter: brightness(1.2) drop-shadow(0 0 80px rgba(255, 0, 60, 0.5)); }
-}
-
-@keyframes floatAura {
-    from { transform: translate(-70%, -30%); }
-    to { transform: translate(-30%, -70%); }
-}
-
-.content > * {
-    animation: fadeInLarge 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes fadeInLarge {
-    from { opacity: 0; transform: translateY(100px) scale(0.9); filter: blur(20px); }
-    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-}
+init();
+animate();
