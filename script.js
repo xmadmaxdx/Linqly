@@ -92,10 +92,10 @@ class Particle {
     }
 }
 
-function getHeartPoint(t) {
+function getHeartPoint(t, scale) {
     const x = 16 * Math.pow(Math.sin(t), 3);
     const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-    return { x: x * 20, y: y * 20 };
+    return { x: x * scale, y: y * scale };
 }
 
 function animate() {
@@ -132,17 +132,20 @@ exploreBtn.addEventListener('click', () => {
 function triggerClimax() {
     document.querySelector('.content').style.opacity = '0';
     
-    // Add "millions" (well, thousands) of hearts
-    for (let i = 0; i < 2000; i++) {
+    // Dynamic scale based on screen size
+    const heartScale = Math.min(width, height) / 45;
+
+    // Add hearts
+    for (let i = 0; i < 1500; i++) {
         const p = new Particle();
         p.mode = 'heart';
-        p.color = '#ff003c';
+        p.color = i % 10 === 0 ? '#ffd700' : '#ff003c';
         const t = Math.random() * Math.PI * 2;
-        const point = getHeartPoint(t);
+        const point = getHeartPoint(t, heartScale);
         p.targetX = width / 2 + point.x;
         p.targetY = height / 2 + point.y;
-        p.speedX = (Math.random() - 0.5) * 10;
-        p.speedY = (Math.random() - 0.5) * 10;
+        p.speedX = (Math.random() - 0.5) * 15;
+        p.speedY = (Math.random() - 0.5) * 15;
         particles.push(p);
     }
 
@@ -150,7 +153,7 @@ function triggerClimax() {
     particles.forEach((p, i) => {
         p.mode = 'heart';
         const t = (i / particles.length) * Math.PI * 2;
-        const point = getHeartPoint(t);
+        const point = getHeartPoint(t, heartScale);
         p.targetX = width / 2 + point.x;
         p.targetY = height / 2 + point.y;
     });
