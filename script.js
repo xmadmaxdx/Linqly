@@ -1,219 +1,180 @@
-const canvas = document.getElementById('loveCanvas');
-const ctx = canvas.getContext('2d');
-const quoteElement = document.getElementById('quoteStream');
-const exploreBtn = document.getElementById('exploreBtn');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
 
-let width, height, particles = [];
-const particleCount = 200;
-const mouse = { x: null, y: null, radius: 200 };
-
-let touchCount = 0;
-let isFinished = false;
-
-const quotes = [
-    "Sneha, you are my favorite miracle.",
-    "Every heartbeat whispers your name, Sneha.",
-    "In your eyes, I found my forever home.",
-    "Sneha, you make the world feel like magic.",
-    "My heart belongs to you, Sneha."
-];
-
-let quoteIndex = 0;
-
-window.addEventListener('resize', init);
-window.addEventListener('mousemove', (e) => {
-    mouse.x = e.x;
-    mouse.y = e.y;
-});
-
-function init() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    particles = [];
-    for (let i = 0; i < particleCount; i++) {
-        particles.push(new Particle());
-    }
+:root {
+    --primary-love: #ff003c;
+    --deep-crimson: #4a0000;
+    --velvet-rose: #2d0010;
+    --gold-shimmer: #ffd700;
+    --obsidian: #050505;
+    --glass-bg: rgba(255, 0, 60, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-color: #ffffff;
 }
 
-class Particle {
-    constructor() {
-        this.reset();
-    }
-
-    reset() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * (height + 100);
-        this.size = Math.random() * 2 + 0.5;
-        this.baseX = this.x;
-        this.baseY = this.y;
-        this.density = (Math.random() * 40) + 10;
-        this.color = `rgba(255, ${Math.random() * 30}, ${Math.random() * 100 + 50}, ${Math.random() * 0.4 + 0.1})`;
-        this.velocity = Math.random() * 0.8 + 0.3;
-        this.angle = Math.random() * Math.PI * 2;
-        this.spin = Math.random() * 0.1 - 0.05;
-    }
-
-    draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        if (this.density > 40) {
-            ctx.moveTo(this.x, this.y);
-            ctx.bezierCurveTo(this.x, this.y - 3, this.x - 5, this.y - 3, this.x - 5, this.y);
-            ctx.bezierCurveTo(this.x - 5, this.y + 3, this.x, this.y + 5, this.x, this.y + 7);
-            ctx.bezierCurveTo(this.x, this.y + 5, this.x + 5, this.y + 3, this.x + 5, this.y);
-            ctx.bezierCurveTo(this.x + 5, this.y - 3, this.x, this.y - 3, this.x, this.y);
-        } else {
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        }
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    update() {
-        this.y -= this.velocity;
-        this.angle += this.spin;
-        this.x += Math.sin(this.angle) * 0.5;
-
-        if (this.y < -20) {
-            this.y = height + 20;
-            this.x = Math.random() * width;
-        }
-
-        let dx = mouse.x - this.x;
-        let dy = mouse.y - this.y;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < mouse.radius) {
-            let force = (mouse.radius - distance) / mouse.radius;
-            let directionX = (dx / distance) * force * this.density;
-            let directionY = (dy / distance) * force * this.density;
-            this.x -= directionX;
-            this.y -= directionY;
-        }
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
 }
 
-function animate() {
-    ctx.fillStyle = isFinished ? 'rgba(255, 255, 255, 0.1)' : 'rgba(5, 5, 5, 0.1)';
-    ctx.fillRect(0, 0, width, height);
-    
-    for (let i = 0; i < particles.length; i++) {
-        particles[i].update();
-        particles[i].draw();
-    }
-    requestAnimationFrame(animate);
+body {
+    background-color: var(--obsidian);
+    color: var(--text-color);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    transition: background-color 4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-// Quote Streamer
-setInterval(() => {
-    if (isFinished) return;
-    quoteElement.style.opacity = '0';
-    quoteElement.style.transform = 'translateY(-10px)';
-    setTimeout(() => {
-        quoteIndex = (quoteIndex + 1) % quotes.length;
-        quoteElement.innerText = quotes[quoteIndex];
-        quoteElement.style.opacity = '0.6';
-        quoteElement.style.transform = 'translateY(0)';
-    }, 1000);
-}, 6000);
-
-exploreBtn.addEventListener('click', (e) => {
-    if (isFinished) return;
-
-    touchCount++;
-    
-    // Aggressive speed-up
-    particles.forEach(p => {
-        p.velocity *= 1.4; // 40% increase per click
-        p.density += 5;
-        // Shift colors towards gold as speed increases
-        if (touchCount > 5) {
-            p.color = `rgba(255, ${200 + touchCount * 5}, ${Math.random() * 50}, ${0.6 + touchCount * 0.04})`;
-        }
-    });
-
-    if (touchCount >= 10) {
-        triggerClimax();
-    } else {
-        exploreBtn.innerText = `Touch Heart (${10 - touchCount})`;
-        exploreBtn.style.transform = `scale(${1 + touchCount * 0.15}) rotate(${touchCount * 2}deg)`;
-        exploreBtn.style.boxShadow = `0 0 ${20 + touchCount * 20}px rgba(255, 0, 60, ${0.2 + touchCount * 0.1})`;
-    }
-});
-
-function triggerClimax() {
-    isFinished = true;
-    document.querySelector('.content').style.opacity = '0';
-    document.querySelector('.content').style.transform = 'scale(0.8) translateY(-50px)';
-    
-    // Transform particles into a swirling galaxy of hearts
-    particles.forEach((p, i) => {
-        p.isGalaxyMember = true;
-        p.angleOffset = (i / particles.length) * Math.PI * 2;
-        p.distanceFromCenter = Math.random() * 20 + 5;
-        p.color = i % 2 === 0 ? '#ff003c' : '#ffd700';
-        p.size = Math.random() * 4 + 2;
-    });
-
-    // Intensify the "Motion Blur" for the transition
-    let blurIntensity = 0.1;
-    const climaxInterval = setInterval(() => {
-        blurIntensity -= 0.005;
-        if (blurIntensity < 0.01) blurIntensity = 0.01;
-        
-        ctx.fillStyle = `rgba(5, 5, 5, ${blurIntensity})`;
-        ctx.fillRect(0, 0, width, height);
-
-        particles.forEach(p => {
-            p.distanceFromCenter += 2;
-            let targetX = width / 2 + Math.cos(p.angleOffset + p.distanceFromCenter * 0.01) * p.distanceFromCenter;
-            let targetY = height / 2 + Math.sin(p.angleOffset + p.distanceFromCenter * 0.01) * p.distanceFromCenter;
-            
-            p.x += (targetX - p.x) * 0.1;
-            p.y += (targetY - p.y) * 0.1;
-            p.draw();
-        });
-
-        if (blurIntensity <= 0.01 && particles[0].distanceFromCenter > width) {
-            clearInterval(climaxInterval);
-            showFinalMessage();
-        }
-    }, 16);
+.vignette {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.95) 100%);
+    pointer-events: none;
+    z-index: 5;
+    transition: opacity 3s ease;
 }
 
-function showFinalMessage() {
-    const finalMsg = document.createElement('div');
-    finalMsg.id = "finalMessage";
-    finalMsg.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 100;
-        color: #fff;
-        font-family: 'Playfair Display', serif;
-        font-size: 6vw;
-        letter-spacing: 2px;
-        text-align: center;
-        opacity: 0;
-        transition: all 3s cubic-bezier(0.16, 1, 0.3, 1);
-        text-shadow: 0 0 50px rgba(255, 0, 60, 0.8);
-    `;
-    finalMsg.innerHTML = `
-        <span style="display:block; transform:translateY(20px); transition:inherit;">Sneha, You Are My Galaxy.</span>
-        <span style="display:block; font-size:1.2rem; margin-top:2rem; cursor:pointer; color:#ff003c; opacity:0.6; letter-spacing:8px;" onclick="resetExperience()">LOVE AGAIN</span>
-    `;
-    document.body.appendChild(finalMsg);
-    
-    setTimeout(() => {
-        finalMsg.style.opacity = '1';
-        finalMsg.querySelector('span').style.transform = 'translateY(0)';
-    }, 500);
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: linear-gradient(135deg, #050505 0%, #1a0000 100%);
 }
 
-function resetExperience() {
-    location.reload(); // Simplest way to restart Level 1 with all states cleared
+#loveCanvas {
+    display: block;
+    filter: blur(1px);
 }
 
-init();
-animate();
+.content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    padding: 4rem;
+    text-align: center;
+    transition: opacity 1s ease;
+}
+
+.logo {
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 12px;
+    color: var(--primary-love);
+    text-shadow: 0 0 20px rgba(255, 0, 60, 0.6);
+    opacity: 0.8;
+}
+
+.hero {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 1s ease;
+}
+
+.hyper-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15vw; /* Even bigger */
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: -2px;
+    line-height: 0.8;
+    background: linear-gradient(to bottom, #fff 20%, var(--primary-love) 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.8)); /* Stronger shadow for visibility */
+    margin-bottom: 2rem;
+    animation: pulseScale 8s ease-in-out infinite;
+}
+
+.romantic-quote {
+    font-size: 1.5rem;
+    font-weight: 300;
+    font-style: italic;
+    color: #ffd7d7;
+    max-width: 800px;
+    opacity: 0.9; /* More visible */
+    letter-spacing: 1px;
+    transition: all 1s ease;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.cta-pulse {
+    margin-top: 4rem;
+}
+
+button {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    padding: 1.5rem 4rem;
+    color: white;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    border-radius: 2px;
+    cursor: pointer;
+    backdrop-filter: blur(20px);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover {
+    border-color: var(--primary-love);
+    background: rgba(255, 0, 60, 0.1);
+    transform: scale(1.1);
+    letter-spacing: 6px;
+    box-shadow: 0 0 100px rgba(255, 0, 60, 0.2);
+}
+
+.floating-aura {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255, 0, 60, 0.1) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 2;
+    animation: floatAura 20s infinite alternate linear;
+}
+
+footer {
+    opacity: 0.2;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+}
+
+@keyframes pulseScale {
+    0%, 100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 50px rgba(255, 0, 60, 0.3)); }
+    50% { transform: scale(1.05); filter: brightness(1.2) drop-shadow(0 0 80px rgba(255, 0, 60, 0.5)); }
+}
+
+@keyframes floatAura {
+    from { transform: translate(-70%, -30%); }
+    to { transform: translate(-30%, -70%); }
+}
+
+.content > * {
+    animation: fadeInLarge 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInLarge {
+    from { opacity: 0; transform: translateY(100px) scale(0.9); filter: blur(20px); }
+    to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
