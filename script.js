@@ -122,47 +122,93 @@ exploreBtn.addEventListener('click', (e) => {
 
     touchCount++;
     
-    // Intensify on each click
+    // Aggressive speed-up
     particles.forEach(p => {
-        p.velocity += 0.2;
-        p.density += 2;
+        p.velocity *= 1.4; // 40% increase per click
+        p.density += 5;
+        // Shift colors towards gold as speed increases
+        if (touchCount > 5) {
+            p.color = `rgba(255, ${200 + touchCount * 5}, ${Math.random() * 50}, ${0.6 + touchCount * 0.04})`;
+        }
     });
 
     if (touchCount >= 10) {
         triggerClimax();
     } else {
-        // Feedback on click
         exploreBtn.innerText = `Touch Heart (${10 - touchCount})`;
-        exploreBtn.style.transform = `scale(${1 + touchCount * 0.05})`;
+        exploreBtn.style.transform = `scale(${1 + touchCount * 0.15}) rotate(${touchCount * 2}deg)`;
+        exploreBtn.style.boxShadow = `0 0 ${20 + touchCount * 20}px rgba(255, 0, 60, ${0.2 + touchCount * 0.1})`;
     }
 });
 
 function triggerClimax() {
     isFinished = true;
-    document.body.classList.add('climax');
     document.querySelector('.content').style.opacity = '0';
+    document.querySelector('.content').style.transform = 'scale(0.8) translateY(-50px)';
     
-    // Explosion of particles
-    particles.forEach(p => {
-        p.velocity = (Math.random() - 0.5) * 20;
-        p.spin = (Math.random() - 0.5) * 1;
-        p.color = '#ff003c';
-        p.size *= 3;
+    // Transform particles into a swirling galaxy of hearts
+    particles.forEach((p, i) => {
+        p.isGalaxyMember = true;
+        p.angleOffset = (i / particles.length) * Math.PI * 2;
+        p.distanceFromCenter = Math.random() * 20 + 5;
+        p.color = i % 2 === 0 ? '#ff003c' : '#ffd700';
+        p.size = Math.random() * 4 + 2;
     });
 
+    // Intensify the "Motion Blur" for the transition
+    let blurIntensity = 0.1;
+    const climaxInterval = setInterval(() => {
+        blurIntensity -= 0.005;
+        if (blurIntensity < 0.01) blurIntensity = 0.01;
+        
+        ctx.fillStyle = `rgba(5, 5, 5, ${blurIntensity})`;
+        ctx.fillRect(0, 0, width, height);
+
+        particles.forEach(p => {
+            p.distanceFromCenter += 2;
+            let targetX = width / 2 + Math.cos(p.angleOffset + p.distanceFromCenter * 0.01) * p.distanceFromCenter;
+            let targetY = height / 2 + Math.sin(p.angleOffset + p.distanceFromCenter * 0.01) * p.distanceFromCenter;
+            
+            p.x += (targetX - p.x) * 0.1;
+            p.y += (targetY - p.y) * 0.1;
+            p.draw();
+        });
+
+        if (blurIntensity <= 0.01 && particles[0].distanceFromCenter > width) {
+            clearInterval(climaxInterval);
+            showFinalMessage();
+        }
+    }, 16);
+}
+
+function showFinalMessage() {
+    const finalMsg = document.createElement('div');
+    finalMsg.id = "finalMessage";
+    finalMsg.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+        color: #fff;
+        font-family: 'Playfair Display', serif;
+        font-size: 6vw;
+        letter-spacing: 2px;
+        text-align: center;
+        opacity: 0;
+        transition: all 3s cubic-bezier(0.16, 1, 0.3, 1);
+        text-shadow: 0 0 50px rgba(255, 0, 60, 0.8);
+    `;
+    finalMsg.innerHTML = `
+        <span style="display:block; transform:translateY(20px); transition:inherit;">Sneha, You Are My Galaxy.</span>
+        <span style="display:block; font-size:1.2rem; margin-top:2rem; cursor:pointer; color:#ff003c; opacity:0.6; letter-spacing:8px;" onclick="resetExperience()">LOVE AGAIN</span>
+    `;
+    document.body.appendChild(finalMsg);
+    
     setTimeout(() => {
-        // Show final message
-        document.body.innerHTML += `
-            <div id="finalMessage" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; color:#ff003c; font-family:'Playfair Display', serif; font-size:5vw; text-align:center; opacity:0; transition:opacity 2s ease;">
-                Sneha, I Love You Forever.
-                <br>
-                <span style="font-size:1.5rem; cursor:pointer; color:#888;" onclick="resetExperience()">Restart</span>
-            </div>
-        `;
-        setTimeout(() => {
-            document.getElementById('finalMessage').style.opacity = '1';
-        }, 100);
-    }, 2000);
+        finalMsg.style.opacity = '1';
+        finalMsg.querySelector('span').style.transform = 'translateY(0)';
+    }, 500);
 }
 
 function resetExperience() {
