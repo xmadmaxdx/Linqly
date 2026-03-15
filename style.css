@@ -25,11 +25,7 @@ body {
     overflow: hidden;
     height: 100vh;
     width: 100vw;
-    transition: background-color 2s ease;
-}
-
-body.climax {
-    background-color: #fff;
+    transition: background-color 4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .vignette {
@@ -38,14 +34,10 @@ body.climax {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.9) 100%);
+    background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.95) 100%);
     pointer-events: none;
     z-index: 5;
-    transition: opacity 2s ease;
-}
-
-body.climax .vignette {
-    opacity: 0;
+    transition: opacity 3s ease;
 }
 
 .background-container {
