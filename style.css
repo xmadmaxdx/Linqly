@@ -66,15 +66,15 @@ body {
     flex-direction: column;
     justify-content: space-between;
     height: 100vh;
-    padding: 4rem;
+    padding: clamp(1rem, 5vw, 4rem);
     text-align: center;
-    pointer-events: none; /* Let clicks pass to canvas if needed, but button handles its own */
+    pointer-events: none;
 }
 
 .logo {
-    font-size: 0.8rem;
+    font-size: clamp(0.6rem, 2vw, 0.8rem);
     font-weight: 200;
-    letter-spacing: 15px;
+    letter-spacing: clamp(5px, 2vw, 15px);
     color: var(--primary-love);
     text-shadow: 0 0 15px rgba(255, 0, 60, 0.8);
     text-transform: uppercase;
@@ -86,31 +86,33 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    pointer-events: auto; /* Re-enable for button */
+    pointer-events: auto;
+    width: 100%;
 }
 
 .hyper-title {
     font-family: 'Playfair Display', serif;
-    font-size: 15vw;
+    font-size: clamp(3.5rem, 15vw, 15rem);
     font-weight: 800;
     font-style: italic;
-    letter-spacing: -5px;
-    line-height: 0.8;
+    letter-spacing: clamp(-2px, -0.5vw, -5px);
+    line-height: 0.85;
     background: linear-gradient(to bottom, #fff 30%, var(--primary-love) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 40px rgba(0, 0, 0, 0.9));
-    margin-bottom: 2rem;
+    margin-bottom: clamp(1rem, 3vw, 2rem);
     animation: pulseScale 10s ease-in-out infinite;
+    word-break: break-all;
 }
 
 .romantic-quote {
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 4vw, 1.5rem);
     font-weight: 300;
     font-style: italic;
     color: #fff;
-    max-width: 800px;
+    max-width: clamp(280px, 80%, 800px);
     opacity: 0.9;
     letter-spacing: 1px;
     text-shadow: 0 0 20px rgba(0, 0, 0, 1), 0 0 10px rgba(255, 0, 60, 0.3);
@@ -118,16 +120,16 @@ body {
 }
 
 .cta-pulse {
-    margin-top: 5rem;
+    margin-top: clamp(2rem, 10vw, 5rem);
 }
 
 button {
     background: transparent;
     border: 1px solid var(--glass-border);
-    padding: 1.5rem 5rem;
+    padding: clamp(1rem, 4vw, 1.5rem) clamp(2rem, 10vw, 5rem);
     color: white;
-    font-size: 0.9rem;
-    letter-spacing: 6px;
+    font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+    letter-spacing: clamp(2px, 1vw, 6px);
     text-transform: uppercase;
     border-radius: 4px;
     cursor: pointer;
@@ -136,6 +138,7 @@ button {
     position: relative;
     overflow: hidden;
     pointer-events: auto;
+    width: max-content;
 }
 
 button:hover {
@@ -172,10 +175,11 @@ footer {
 
 .final-text {
     font-family: 'Playfair Display', serif;
-    font-size: 6vw;
+    font-size: clamp(1.8rem, 6vw, 6vw);
     font-weight: 800;
     color: #fff;
     text-shadow: 0 0 60px rgba(255, 0, 60, 1);
+    padding: 0 1rem;
 }
 
 .restart-btn {
